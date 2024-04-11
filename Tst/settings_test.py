@@ -3,9 +3,11 @@ import unittest
 
 
 #
-# Набор автотестов для проверки работы модуля настроек
+# Набор автотестов для проверки работы модуmeля настроек
 #
 class settings_test(unittest.TestCase):
+    
+ 
     
     #
     # Проверить на корректность создания и загрузки файла с настройками
@@ -19,7 +21,7 @@ class settings_test(unittest.TestCase):
 
         # Проверки
         print(manager.data)
-        print(type(manager.data))
+        ayaya = type(manager.data['block_period'])
         assert result is not None
         assert manager.settings.inn > 0
         assert manager.settings.short_name != ""
@@ -51,11 +53,16 @@ class settings_test(unittest.TestCase):
         
         # Проверки
         assert manager.error.is_empty == False
+    
+    def test_check_save(self):
+        # Подготовка
+        options = settings_manager()
+        options.data['block_period']="1988-11-09"
+        # Действие
+        result = options.save()
         
+        options = settings_manager()
         
-            
-
-        
-
- 
-
+        # Проверки
+        assert result == True
+        assert options.data["block_period"] == "1988-11-09"
