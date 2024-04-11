@@ -1,20 +1,49 @@
 from Src.Logics.reporting import reporting
+from Src.exceptions import operation_exception
 
 class markdown_reporting(reporting):
     
-    def create(self, typeKey: str):
-        super().create(typeKey)
-        result = ""
+      def create(self, storage_key: str):
+        super().create(storage_key)
+        result = []
 
         # Исходные данные
-        items = self.data[typeKey]
+        items = self.data[ storage_key ]
+        if items == None:
+            raise operation_exception("Невозможно сформировать данные. Данные не заполнены!")
         
-        # Список 
-        for item in items:   
+        
+        if len(items) == 0:
+            raise operation_exception("Невозможно сформировать данные. Нет данных!")
+        
+        # Заголовок
+        result.append(f"# {storage_key}")
+        
+        # Шапка таблицы
+        header = ""
+        line = ""
+        for field in self.fields:
+            header += f"|{field}"
+            line += "|--"
+        
+        result.append(f"{header}|")
+        result.append(f"{line}|")
+        
+        # Данные
+        for item in items:
+            row = ""
             for field in self.fields:
-                result += f"| {field}: {item.__dict__[field]}"
+                attribute = getattr(item.__class__, field)
+                if isinstance(attribute, property):
+                    value = getattr(item, field)
+                    if isinstance(value, (list, dict)) or value is None:
+                        value = ""
+                        
+                    row +=f"|{value}"  
                 
-            result += "|\n"
-        
-        # Результат markdown
-        return result
+            result.append(f"{row}|")
+            
+        return "\n".join(result)        
+    
+     
+    
