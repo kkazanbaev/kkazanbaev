@@ -82,8 +82,6 @@ class storage():
                 return True
         except Exception as ex:
             raise operation_exception(f"Ошибка при записи файла {self.__storage_file}\n{ex}")
-            
-        return False    
 
  
     @staticmethod
@@ -104,6 +102,13 @@ class storage():
             _type_: _description_
         """
         return "group_model"
+    
+    @staticmethod
+    def turn_key():
+        """
+            Ключ для данных о обороте
+        """
+        return "turn_data"
       
       
     @staticmethod
