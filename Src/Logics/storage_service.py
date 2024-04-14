@@ -34,7 +34,7 @@ class storage_service:
         
         # Подобрать процессинг    
         key_turn = process_factory.turn_key()
-        processing = process_factory().create( key_turn  )
+        processing = process_factory().create(key_turn)
     
         # Обороты
         turns =  processing().process( data )
@@ -43,7 +43,7 @@ class storage_service:
         
     # Набор основных методов    
         
-    def create_turns(self, start_period: datetime, stop_period:datetime ) -> list:
+    def create_turns(self, start_period: datetime, stop_period:datetime) -> list:
         """
             Получить обороты за период
         Args:
@@ -56,14 +56,14 @@ class storage_service:
         exception_proxy.validate(start_period, datetime)
         exception_proxy.validate(stop_period, datetime)
         
-        if start_period > stop_period:
+        if stop_period > start_period:
             raise argument_exception("Некорректно переданы параметры!")
         
         # Фильтруем      
-        prototype = storage_prototype(  self.__data )  
-        filter = prototype.filter_by_period( start_period, stop_period)
+        prototype = storage_prototype(self.__data)  
+        filter = prototype.filter_by_period(stop_period, start_period)
         
-        return self.__processing( filter. data )
+        return self.__processing(filter. data)
             
         
     def create_turns_by_nomenclature(self, start_period: datetime, stop_period: datetime, nomenclature: nomenclature_model) -> list:
@@ -81,17 +81,28 @@ class storage_service:
         exception_proxy.validate(stop_period, datetime)
         exception_proxy.validate(nomenclature, nomenclature_model)
         
-        if start_period > stop_period:
+        if stop_period > start_period:
             raise argument_exception("Некорректно переданы параметры!")
         
         # Фильтруем      
-        prototype = storage_prototype(  self.__data )  
-        filter = prototype.filter_by_period( start_period, stop_period)
-        filter = filter.filter_by_nomenclature( nomenclature )
+        prototype = storage_prototype(self.__data)  
+        filter = prototype.filter_by_period(stop_period, start_period)
+        filter = filter.filter_by_nomenclature(nomenclature)
         if not filter.is_empty:
             raise operation_exception(f"Невозможно сформировать обороты по указанным данных: {filter.error}")
             
-        return self.__processing( filter. data )    
+        return self.__processing( filter. data )
+    
+    def create_blocked_turns(self, stop_period: datetime):
+        exception_proxy.validate(stop_period, datetime)
+
+        start_period = datetime(1900, 1, 1)
+        turns = self.create_turns(start_period, stop_period)
+        key = storage.turn_key()
+        storage_ex = storage()
+        storage_data = storage_ex.data
+        storage_data[key] = turns
+        storage_ex.save()
     
     def create_turns_only_nomenclature(self, nomenclature: nomenclature_model) -> list:
         """

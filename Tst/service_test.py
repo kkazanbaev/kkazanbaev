@@ -165,11 +165,17 @@ class service_test(unittest.TestCase):
         stop_len_transaction = len(start.storage.data[  storage.storage_transaction_key() ])
           
         # Проверка (транзакций должно быть больше)   
-        assert start_len_transaction < stop_len_transaction   
+        assert start_len_transaction < stop_len_transaction
+
+    def test_create_blocked_turns(self):
+        manager = settings_manager()
+        start = start_factory(manager.settings)
+        start.create()
+        key = storage.storage_transaction_key()
+        data = start.storage.data[key]
+        service = storage_service(data)
         
-            
+        stop_period = datetime(2024, 4, 14)
+        result = service.create_blocked_turns(stop_period)
         
-            
-            
-        
-        
+        assert result is not None
