@@ -1,5 +1,5 @@
 from Src.exceptions import exception_proxy
-
+from datetime import datetime
 #
 # Класс для описания настроек
 #
@@ -7,8 +7,8 @@ class settings():
     _inn = 0
     _short_name = ""
     _first_start = True
-    _report_format = ""
-    
+    _mode = "csv"
+    _block_period: datetime = None
     
     @property
     def inn(self):
@@ -49,17 +49,34 @@ class settings():
     @is_first_start.setter        
     def is_first_start(self, value: bool):
         self._first_start = value
-    
+        
     @property
-    def report_format(self):
+    def report_mode(self):
         """
-            Формат отчета
+            Режим построения отчетности
         Returns:
-            str:
+            _type_: _description_
         """
+        return self._mode
+    
+    @report_mode.setter
+    def report_mode(self, value: str):
+        exception_proxy.validate(value, str)
+        
+        self._mode = value
+    
 
-    @report_format.setter
-    def report_format(self, value: str):
-        if value not in ["CSV", "Markdown", "Json"]:
-            raise ValueError("Неверный формат отчета")
-        self._report_format = value
+    @property
+    def block_period(self):
+        """
+            Дата блокировки
+        """
+        return self._block_period
+    
+    @block_period.setter
+    def block_period(self, value: str):
+        value = datetime.fromisoformat(value)
+        if not isinstance(value, datetime):
+            raise ValueError("Ожидается объект: datetime")
+        
+        self._block_period = value      
